@@ -22,15 +22,16 @@ const PATHS = {
 
 const common_build = {
     devtool: 'source-map',
+    context: __dirname,
     entry: [
         'webpack-dev-server/client?http://localhost:3000',
         'webpack/hot/only-dev-server',
         './src/index'
     ],
     output: {
-        path: path.join(__dirname, PATHS.build),
-        filename: '[name].bundle.js',
-        publicPath: PATHS.build
+        path: PATHS.build,
+        filename: 'bundle.js',
+        publicPath: PATHS.build + '/'
     }
 };
 
