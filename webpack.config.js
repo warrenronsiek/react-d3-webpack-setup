@@ -1,15 +1,16 @@
 const path = require('path');
 const webpack = require('webpack');
 const vaidator = require('webpack-validator');
+const WebpackDevServer = require('webpack-dev-server');
 const merge = require('webpack-merge');
 const TARGET = process.env.npm_lifecycle_event;
+
+process.env.BABEL_ENV = TARGET;
 
 const ENV = {
     host: process.env.HOST || 'localhost',
     port: process.env.PORT || 8080
 };
-
-process.env.BABEL_ENV = TARGET;
 
 const PATHS = {
     dir: __dirname,
@@ -39,6 +40,13 @@ const dev_build = {
     plugins: [
         new webpack.HotModuleReplacementPlugin()
     ],
+    devServer: {
+        hot: true,
+        historyApiFallback: true,
+        inline: true,
+        host: ENV.host,
+        port: ENV.port
+    },
     module: {
         loaders: [{
             test: /\.js$/,
