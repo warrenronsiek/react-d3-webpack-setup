@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const vaidator = require('webpack-validator');
 const WebpackDevServer = require('webpack-dev-server');
+const HtmlwebpackPlugin = require('html-webpack-plugin');
 const merge = require('webpack-merge');
 const TARGET = process.env.npm_lifecycle_event;
 
@@ -25,15 +26,31 @@ const common_build = {
     devtool: 'source-map',
     context: __dirname,
     entry: [
-        'webpack-dev-server/client?http://localhost:3000',
-        'webpack/hot/only-dev-server',
-        './src/index'
+        PATHS.src
     ],
+    resolve: {
+        extensions: ['', '.js', '.ts']
+    },
     output: {
         path: PATHS.build,
-        filename: 'bundle.js',
+        filename: '[name].bundle.js',
         publicPath: PATHS.build + '/'
-    }
+    },
+    module: {
+        loaders: [
+            {
+                test: /\.css$/,
+                loaders: ['style', 'css-loader'],
+                include: PATHS.css
+            }]
+    },
+    plugins: [
+        new HtmlwebpackPlugin({
+            template: 'node_modules/html-webpack-template/index.ejs',
+            title: 'Testing',
+            appMountId: 'app'
+        })
+    ]
 };
 
 const dev_build = {
@@ -44,13 +61,14 @@ const dev_build = {
         hot: true,
         historyApiFallback: true,
         inline: true,
+        contentBase: PATHS.build,
         host: ENV.host,
         port: ENV.port
     },
     module: {
         loaders: [{
             test: /\.js$/,
-            loaders: ['react-hot', 'babel'],
+            loaders: ['react-hot', 'babel?cacheDirectory=' + PATHS.cache],
             exclude: path.join(__dirname, 'node_modules')
         }]
     }
