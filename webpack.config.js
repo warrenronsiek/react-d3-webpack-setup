@@ -48,7 +48,8 @@ const common_build = {
         new HtmlwebpackPlugin({
             template: 'node_modules/html-webpack-template/index.ejs',
             title: 'Testing',
-            appMountId: 'app'
+            appMountId: 'app',
+            inject: false
         })
     ]
 };
