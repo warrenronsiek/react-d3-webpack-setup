@@ -44,7 +44,7 @@ const common_build = {
             },
             {
                 test: /\.tsx?$/,
-                loader: "ts-loader",
+                loader: 'ts-loader',
                 include: PATHS.src
             }]
     },
@@ -54,6 +54,9 @@ const common_build = {
             title: 'Testing',
             appMountId: 'app',
             inject: false
+        }),
+        new webpack.ProvidePlugin({
+            d3: 'd3'
         })
     ],
 };
@@ -67,7 +70,7 @@ const dev_build = {
         historyApiFallback: true,
         inline: true,
         contentBase: PATHS.build,
-        stats: "errors-only",
+        stats: 'errors-only',
         host: ENV.host,
         port: ENV.port
     },
@@ -80,7 +83,6 @@ const dev_build = {
     }
 };
 
-if (TARGET === 'start') {
-    module.exports = vaidator(merge(common_build, dev_build));
-}
+
+module.exports = vaidator(merge(common_build, dev_build));
 

@@ -54,6 +54,7 @@
   "dependencies": {
     "d3": "^4.2.2",
     "react": "^0.14.6",
+    "react-d3-wrap": "^2.1.2",
     "react-dom": "^0.14.6",
     "redux": "^3.5.2"
   }
