@@ -17,6 +17,6 @@ const MyChart = d3Wrap({
 
 export default class HelloD3 extends React.Component {
     render() {
-        return (<MyChart data={null} width='400px' height='60px' options={ {color: '#ff0000'} }/>)
+        return (<MyChart data={["fake data"]} width={200} height={60} options={ {color: '#ff0000'} }/>)
     }
 }

@@ -17,7 +17,7 @@ const PATHS = {
     src: path.join(__dirname, 'src'),
     js: path.join(__dirname, 'src', 'js'),
     css: path.join(__dirname, 'src', 'css'),
-    build: path.join(__dirname, 'dist'),
+    dist: path.join(__dirname, 'dist'),
     cache: path.join(__dirname, 'cache')
 };
 
@@ -31,9 +31,9 @@ const common_build = {
         extensions: ['', '.js', '.jsx', '.ts', '.tsx']
     },
     output: {
-        path: PATHS.build,
+        path: PATHS.dist,
         filename: '[name].bundle.js',
-        publicPath: PATHS.build + '/'
+        publicPath: PATHS.dist + '/'
     },
     module: {
         loaders: [
@@ -46,7 +46,14 @@ const common_build = {
                 test: /\.tsx?$/,
                 loader: 'ts-loader',
                 include: PATHS.src
-            }]
+            }],
+        postLoaders: [
+            {
+                test: /\.js$/,
+                loader: 'source-map-loader',
+                include: PATHS.dist
+            }
+        ]
     },
     plugins: [
         new HtmlwebpackPlugin({
@@ -69,13 +76,13 @@ const dev_build = {
         hot: true,
         historyApiFallback: true,
         inline: true,
-        contentBase: PATHS.build,
+        contentBase: PATHS.dist,
         stats: 'errors-only',
         host: ENV.host,
         port: ENV.port
     },
     module: {
-        preLoaders: [{
+        loaders: [{
             test: /\.jsx?$/,
             loaders: ['react-hot', 'babel?cacheDirectory=' + PATHS.cache],
             exclude: path.join(__dirname, 'node_modules')
