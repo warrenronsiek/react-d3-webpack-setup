@@ -2,6 +2,8 @@ const path = require('path');
 const webpack = require('webpack');
 const vaidator = require('webpack-validator');
 const HtmlwebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const merge = require('webpack-merge');
 const TARGET = process.env.npm_lifecycle_event;
 
@@ -18,7 +20,9 @@ const PATHS = {
     js: path.join(__dirname, 'src', 'js'),
     css: path.join(__dirname, 'src', 'css'),
     dist: path.join(__dirname, 'dist'),
-    cache: path.join(__dirname, 'cache')
+    build: path.join(__dirname, 'build'),
+    cache: path.join(__dirname, 'cache'),
+    node_modules: path.join(__dirname, 'node_modules')
 };
 
 const common_build = {
@@ -32,22 +36,16 @@ const common_build = {
     },
     output: {
         path: PATHS.dist,
-        filename: '[name].bundle.js',
-        publicPath: PATHS.dist + '/'
+        publicPath: '/'
     },
     module: {
         loaders: [
-            {
-                test: /\.css$/,
-                loaders: ['style', 'css-loader'],
-                include: PATHS.css
-            },
             {
                 test: /\.tsx?$/,
                 loader: 'ts-loader',
                 include: PATHS.src
             }],
-        postLoaders: [
+        preLoaders: [
             {
                 test: /\.js$/,
                 loader: 'source-map-loader',
@@ -72,6 +70,9 @@ const dev_build = {
     plugins: [
         new webpack.HotModuleReplacementPlugin()
     ],
+    output: {
+        filename: '[name].bundle.js',
+    },
     devServer: {
         hot: true,
         historyApiFallback: true,
@@ -83,13 +84,66 @@ const dev_build = {
     },
     module: {
         loaders: [{
-            test: /\.jsx?$/,
+            test: /\.js$/,
             loaders: ['react-hot', 'babel?cacheDirectory=' + PATHS.cache],
-            exclude: path.join(__dirname, 'node_modules')
+            exclude: PATHS.node_modules
+        }, {
+            test: /\.css$/,
+            loaders: ['style-loader', 'css-loader'],
+            include: PATHS.css
         }]
     }
 };
 
+const prod_build = {
+    output: {filename: '[name].[chunkhash].js', chunkFilename: '[chunkhash].js'},
+    module: {
+        loaders: [{
+            test: /\.js$/,
+            loader: 'babel',
+            exclude: PATHS.node_modules,
+        }, {
+            test:/\.css$/,
+            loader: ExtractTextPlugin.extract('style', 'css'),
+            include: PATHS.css
+        }]
+    },
+    plugins: [
+        new webpack.DefinePlugin({'process.env': {NODE_ENV: JSON.stringify("production")}}),
+        new webpack.optimize.DedupePlugin(),
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {warnings: false, drop_console: true},
+            beautify: false,
+            comments: false,
+            mangle: {except: ['$', 'webpackJsonp'], screw_ie8: true, keep_fnames: false}
+        }),
+        new ExtractTextPlugin('[name].[chunkhash].css')
+    ]
+};
 
-module.exports = vaidator(merge(common_build, dev_build));
+const clean_build = {
+    plugins: [
+        new CleanWebpackPlugin([PATHS.dist], {root: process.cwd()})
+    ]
+};
+
+var config;
+switch (TARGET) {
+    case 'start:dev':
+        config = vaidator(merge(common_build, dev_build));
+        break;
+    case 'build:dev':
+        config = vaidator(merge(common_build, dev_build, clean_build));
+        break;
+    case 'start:prod':
+        config = vaidator(merge(common_build, prod_build));
+        break;
+    case 'build:prod':
+        config = vaidator(merge(common_build, prod_build, clean_build));
+        break;
+    default:
+        config = common_build;
+}
+module.exports = config;
 
